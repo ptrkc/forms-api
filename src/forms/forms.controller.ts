@@ -11,6 +11,7 @@ import {
   Query,
   Req,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { CreateFormDto } from './dto/create-form.dto';
@@ -24,34 +25,56 @@ export class FormsController {
 
   @Post('questionarios')
   @UseGuards(JwtAuthGuard)
-  create(@Body() createFormDto: CreateFormDto, @Req() req: { user: UserJwt }) {
-    return this.formsService.create({
+  async create(
+    @Body() createFormDto: CreateFormDto,
+    @Req() req: { user: UserJwt },
+  ) {
+    return await this.formsService.create({
       ...createFormDto,
       user: { id: req.user.id },
     });
   }
 
   @Get('questionarios')
-  findAll(
+  async findAll(
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
   ) {
-    return this.formsService.findAll(skip, take);
+    return await this.formsService.findAll(skip, take);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.formsService.findOne(+id);
+  @Get('questionario/:id')
+  async findOne(@Param('id') id: string) {
+    return await this.formsService.findOneById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFormDto: UpdateFormDto) {
-    return this.formsService.update(+id, updateFormDto);
+  @UseGuards(JwtAuthGuard)
+  @Put('questionario/:id')
+  async updateFully(
+    @Param('id') id: string,
+    @Body() updateFormDto: CreateFormDto,
+    @Req() req: { user: UserJwt },
+  ) {
+    return await this.formsService.updateFully(req.user, +id, updateFormDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('questionario/:id')
+  async updatePartially(
+    @Param('id') id: string,
+    @Body() updateFormDto: UpdateFormDto,
+    @Req() req: { user: UserJwt },
+  ) {
+    return await this.formsService.updatePartially(
+      req.user,
+      +id,
+      updateFormDto,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('questionario/:id')
-  remove(@Param('id') id: string, @Req() req: { user: UserJwt }) {
-    return this.formsService.remove(req.user, +id);
+  async remove(@Param('id') id: string, @Req() req: { user: UserJwt }) {
+    return await this.formsService.remove(req.user, +id);
   }
 }

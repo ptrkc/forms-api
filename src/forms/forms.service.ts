@@ -23,16 +23,47 @@ export class FormsService {
     return { message: 'Form created' };
   }
 
-  findAll(skip: number, take: number) {
-    return this.formsRepository.find({ skip, take });
+  async findAll(skip: number, take: number) {
+    return await this.formsRepository.find({ skip, take });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} form`;
+  async findOneById(id: number) {
+    return await this.formsRepository.findOneBy({ id });
   }
 
-  update(id: number, updateFormDto: UpdateFormDto) {
-    return `This action updates a #${id} form`;
+  async AuthFindOrThrow(user: UserJwt, id: number) {
+    let form: Form;
+    if (user.role !== 'admin') {
+      form = await this.formsRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+      if (!form) throw new NotFoundException();
+
+      if (form.user?.id !== user.id) {
+        throw new UnauthorizedException();
+      } else {
+        return form;
+      }
+    }
+    return await this.formsRepository.findOneBy({ id });
+  }
+
+  async updateFully(user: UserJwt, id: number, updateFormDto: CreateFormDto) {
+    const form = await this.AuthFindOrThrow(user, id);
+    await this.formsRepository.update(form.id, updateFormDto);
+    return { message: 'Form updated' };
+  }
+
+  async updatePartially(
+    user: UserJwt,
+    id: number,
+    updateFormDto: UpdateFormDto,
+  ) {
+    const form = await this.AuthFindOrThrow(user, id);
+    this.formsRepository.merge(form, updateFormDto);
+    await this.formsRepository.save(user);
+    return { message: 'Form updated' };
   }
 
   async remove(user: UserJwt, id: number) {

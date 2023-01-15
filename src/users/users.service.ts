@@ -18,18 +18,18 @@ export class UsersService {
     return { message: 'User created' };
   }
 
-  findAll(skip: number, take: number) {
-    return this.usersRepository.find({ skip, take });
+  async findAll(skip: number, take: number) {
+    return await this.usersRepository.find({ skip, take });
   }
 
-  findByCpf(cpf: string) {
-    return this.usersRepository.findOneBy({ cpf });
+  async findByCpf(cpf: string) {
+    return await this.usersRepository.findOneBy({ cpf });
   }
 
   async update(id: number, userData: CreateUserDto | UpdateUserDto) {
     const user = await this.usersRepository.findOneByOrFail({ id });
     this.usersRepository.merge(user, userData);
-    this.usersRepository.save(user);
+    await this.usersRepository.save(user);
     return { message: 'User updated' };
   }
 

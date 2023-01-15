@@ -25,11 +25,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
   @Get('usuarios')
-  findAll(
+  async findAll(
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
   ) {
-    return this.usersService.findAll(skip, take);
+    return await this.usersService.findAll(skip, take);
   }
 
   @Post('usuario')
@@ -39,25 +39,25 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @Put('usuario/:id')
-  updateCompletely(
+  async updateCompletely(
     @Param('id') id: string,
     @Body() updateUserDto: CreateUserDto,
   ) {
-    return this.usersService.update(+id, updateUserDto);
+    return await this.usersService.update(+id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @Patch('usuario/:id')
-  updatePartially(
+  async updatePartially(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(+id, updateUserDto);
+    return await this.usersService.update(+id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
   @Delete('usuario/:id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 }
