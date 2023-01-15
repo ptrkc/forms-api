@@ -6,8 +6,9 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
-import { hashSync } from 'bcrypt';
+import { hash } from 'bcrypt';
 
 enum Roles {
   user = 'user',
@@ -38,7 +39,10 @@ export class User {
   answers: Answer[];
 
   @BeforeInsert()
-  hashPassword() {
-    this.password = hashSync(this.password, 10);
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password) {
+      this.password = await hash(this.password, 10);
+    }
   }
 }

@@ -14,28 +14,27 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const user = this.usersRepository.create(createUserDto);
-    console.log(user);
     await this.usersRepository.save(user);
     return { message: 'User created' };
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  findOneById(id: number) {
-    return `This action returns a #${id} user`;
+  findAll(skip: number, take: number) {
+    return this.usersRepository.find({ skip, take });
   }
 
   findByCpf(cpf: string) {
     return this.usersRepository.findOneBy({ cpf });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, userData: CreateUserDto | UpdateUserDto) {
+    const user = await this.usersRepository.findOneByOrFail({ id });
+    this.usersRepository.merge(user, userData);
+    this.usersRepository.save(user);
+    return { message: 'User updated' };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    await this.usersRepository.delete({ id });
+    return { message: 'User deleted' };
   }
 }
