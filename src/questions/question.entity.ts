@@ -16,9 +16,6 @@ export class Question {
   @Column()
   description: string;
 
-  @Column()
-  questionId: number;
-
   @ManyToOne(() => Form, (form) => form.questions)
   form: Form;
 

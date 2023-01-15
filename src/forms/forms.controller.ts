@@ -6,23 +6,37 @@ import {
   Patch,
   Param,
   Delete,
+  DefaultValuePipe,
+  ParseIntPipe,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
+import { UserJwt } from 'src/auth/strategies/jwt.strategy';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@Controller('forms')
+@Controller()
 export class FormsController {
   constructor(private readonly formsService: FormsService) {}
 
-  @Post()
-  create(@Body() createFormDto: CreateFormDto) {
-    return this.formsService.create(createFormDto);
+  @Post('questionarios')
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Body() createFormDto: Omit<CreateFormDto, 'userId'>,
+    @Req() req: { user: UserJwt },
+  ) {
+    return this.formsService.create({ ...createFormDto, userId: req.user.id });
   }
 
-  @Get()
-  findAll() {
-    return this.formsService.findAll();
+  @Get('questionarios')
+  findAll(
+    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+  ) {
+    return this.formsService.findAll(skip, take);
   }
 
   @Get(':id')

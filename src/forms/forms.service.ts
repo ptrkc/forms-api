@@ -12,12 +12,14 @@ export class FormsService {
     private formsRepository: Repository<Form>,
   ) {}
 
-  create(createFormDto: CreateFormDto) {
-    return 'This action adds a new form';
+  async create(createFormDto: CreateFormDto) {
+    const form = this.formsRepository.create(createFormDto);
+    await this.formsRepository.save(form);
+    return { message: 'Form created' };
   }
 
-  findAll() {
-    return `This action returns all forms`;
+  findAll(skip: number, take: number) {
+    return this.formsRepository.find({ skip, take });
   }
 
   findOne(id: number) {
