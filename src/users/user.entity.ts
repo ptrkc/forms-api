@@ -1,13 +1,20 @@
 import { Answer } from 'src/answers/answer.entity';
 import { Form } from 'src/forms/form.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  BeforeInsert,
+} from 'typeorm';
+import { hashSync } from 'bcrypt';
 
 enum Roles {
   user = 'user',
   admin = 'admin',
 }
 
-@Entity()
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,7 +28,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ unique: true })
   cpf: string;
 
   @OneToMany(() => Form, (form) => form.user, { onDelete: 'CASCADE' })
@@ -29,4 +36,9 @@ export class User {
 
   @OneToMany(() => Answer, (answer) => answer.user)
   answers: Answer[];
+
+  @BeforeInsert()
+  hashPassword() {
+    this.password = hashSync(this.password, 10);
+  }
 }

@@ -12,16 +12,23 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    const user = this.usersRepository.create(createUserDto);
+    console.log(user);
+    await this.usersRepository.save(user);
+    return { message: 'User created' };
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
+  findOneById(id: number) {
     return `This action returns a #${id} user`;
+  }
+
+  findByCpf(cpf: string) {
+    return this.usersRepository.findOneBy({ cpf });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
