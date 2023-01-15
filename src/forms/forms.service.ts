@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserJwt } from 'src/auth/strategies/jwt.strategy';
 import { Repository } from 'typeorm';
 import { CreateFormDto } from './dto/create-form.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
@@ -12,8 +17,8 @@ export class FormsService {
     private formsRepository: Repository<Form>,
   ) {}
 
-  async create(createFormDto: CreateFormDto) {
-    const form = this.formsRepository.create(createFormDto);
+  async create(createFormWithUser: CreateFormDto & { user: { id: number } }) {
+    const form = this.formsRepository.create(createFormWithUser);
     await this.formsRepository.save(form);
     return { message: 'Form created' };
   }
@@ -30,7 +35,18 @@ export class FormsService {
     return `This action updates a #${id} form`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} form`;
+  async remove(user: UserJwt, id: number) {
+    if (user.role !== 'admin') {
+      const form = await this.formsRepository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+      if (form && form.user?.id !== user.id) {
+        throw new UnauthorizedException();
+      }
+    }
+
+    await this.formsRepository.delete({ id });
+    return { message: 'Form deleted' };
   }
 }

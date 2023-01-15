@@ -2,17 +2,11 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-
-class QuestionDto {
-  @IsNotEmpty()
-  @IsString()
-  description: string;
-}
+import { CreateQuestionDto } from 'src/questions/dto/create-question.dto';
 
 export class CreateFormDto {
   @IsNotEmpty()
@@ -27,12 +21,9 @@ export class CreateFormDto {
   @IsString()
   description: string;
 
-  @IsNumber()
-  userId?: number;
-
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => QuestionDto)
-  questions: QuestionDto[];
+  @Type(() => CreateQuestionDto)
+  questions: CreateQuestionDto[];
 }

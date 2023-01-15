@@ -10,7 +10,6 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
-  Req,
   DefaultValuePipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';

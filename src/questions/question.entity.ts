@@ -16,9 +16,12 @@ export class Question {
   @Column()
   description: string;
 
-  @ManyToOne(() => Form, (form) => form.questions)
+  @ManyToOne(() => Form, (form) => form.questions, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   form: Form;
 
-  @OneToMany(() => Answer, (answer) => answer.question)
+  @OneToMany(() => Answer, (answer) => answer.question, {})
   answers: Answer[];
 }

@@ -22,9 +22,13 @@ export class Form {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, (user) => user.forms)
-  user: User;
+  @ManyToOne(() => User, (user) => user.forms, { nullable: true })
+  user?: User;
 
-  @OneToMany(() => Question, (question) => question.form, { cascade: true })
+  @OneToMany(() => Question, (question) => question.form, {
+    cascade: ['insert', 'update'],
+    onUpdate: 'CASCADE',
+    nullable: true,
+  })
   questions: Question[];
 }

@@ -24,11 +24,11 @@ export class FormsController {
 
   @Post('questionarios')
   @UseGuards(JwtAuthGuard)
-  create(
-    @Body() createFormDto: Omit<CreateFormDto, 'userId'>,
-    @Req() req: { user: UserJwt },
-  ) {
-    return this.formsService.create({ ...createFormDto, userId: req.user.id });
+  create(@Body() createFormDto: CreateFormDto, @Req() req: { user: UserJwt }) {
+    return this.formsService.create({
+      ...createFormDto,
+      user: { id: req.user.id },
+    });
   }
 
   @Get('questionarios')
@@ -49,8 +49,9 @@ export class FormsController {
     return this.formsService.update(+id, updateFormDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.formsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Delete('questionario/:id')
+  remove(@Param('id') id: string, @Req() req: { user: UserJwt }) {
+    return this.formsService.remove(req.user, +id);
   }
 }
