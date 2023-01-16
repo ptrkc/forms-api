@@ -43,6 +43,7 @@ export class FormsController {
     return await this.formsService.findAll(skip, take);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('questionario/:id')
   async findOne(@Param('id') id: string) {
     return await this.formsService.findOneById(+id);

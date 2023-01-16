@@ -1,4 +1,5 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsDateString,
   IsNotEmpty,
@@ -21,8 +22,8 @@ export class CreateFormDto {
   @IsString()
   description: string;
 
-  @IsNotEmpty()
   @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateQuestionDto)
   questions: CreateQuestionDto[];
