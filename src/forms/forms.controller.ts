@@ -20,6 +20,7 @@ import { UserJwt } from 'src/auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -32,8 +33,9 @@ export class FormsController {
 
   @Post('questionarios')
   @UseGuards(JwtAuthGuard)
-  @ApiUnauthorizedResponse({ description: 'Unregistered or non admin user.' })
-  @ApiBearerAuth()
+  @ApiCreatedResponse()
+  @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
+  @ApiBearerAuth('access-token')
   async create(
     @Body() createFormDto: CreateFormDto,
     @Req() req: { user: UserJwt },
@@ -43,6 +45,7 @@ export class FormsController {
       user: { id: req.user.id },
     });
   }
+
   @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
   @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
   @Get('questionarios')
@@ -55,7 +58,7 @@ export class FormsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @Get('questionario/:id')
   async findOne(@Param('id') id: string) {
     return await this.formsService.findOneById(+id);
@@ -63,7 +66,7 @@ export class FormsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @Put('questionario/:id')
   async updateFully(
     @Param('id') id: string,
@@ -75,7 +78,7 @@ export class FormsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @Patch('questionario/:id')
   async updatePartially(
     @Param('id') id: string,
@@ -91,7 +94,7 @@ export class FormsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @Delete('questionario/:id')
   async remove(@Param('id') id: string, @Req() req: { user: UserJwt }) {
     return await this.formsService.remove(req.user, +id);

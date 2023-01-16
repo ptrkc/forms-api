@@ -11,10 +11,12 @@ export class Answer {
   @Column()
   description?: string;
 
-  @ManyToOne(() => Question, (question) => question.answers)
+  @ManyToOne(() => Question, (question) => question.answers, {
+    onDelete: 'CASCADE',
+  })
   question: Question;
 
-  @ManyToOne(() => User, (user) => user.answers)
+  @ManyToOne(() => User, (user) => user.answers, { onDelete: 'CASCADE' })
   user: User;
 
   @ManyToOne(() => Form, (form) => form.answers, { onDelete: 'CASCADE' })

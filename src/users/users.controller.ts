@@ -20,6 +20,7 @@ import { AdminOnlyGuard } from 'src/auth/guards/admin-only.guard';
 import { OwnerGuard } from 'src/auth/guards/owner.guard';
 import {
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -33,7 +34,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
   @ApiUnauthorizedResponse({ description: 'Not admin user.' })
   @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
   @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
@@ -42,7 +43,6 @@ export class UsersController {
     isArray: true,
     status: 200,
   })
-  @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @Get('usuarios')
   async findAll(
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
@@ -51,26 +51,35 @@ export class UsersController {
     return await this.usersService.findAll(skip, take);
   }
 
+  @ApiConflictResponse({ description: 'CPF already enrolled' })
   @Post('usuario')
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
+  @ApiResponse({
+    status: 200,
+    description: "{message: 'User updated'}",
+  })
   @ApiUnauthorizedResponse({
     description: 'Unregistered or not owner of user :id.',
   })
   @Put('usuario/:id')
-  async updateCompletely(
+  async updateFully(
     @Param('id') id: string,
-    @Body() updateUserDto: CreateUserDto,
+    @Body() updateUserDto: CreateUserDto, // all filed are required
   ) {
-    return await this.usersService.update(+id, updateUserDto);
+    return await this.usersService.updateFully(+id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
+  @ApiResponse({
+    status: 200,
+    description: "{message: 'User updated'}",
+  })
   @ApiUnauthorizedResponse({
     description: 'Unregistered or not owner of user :id.',
   })
@@ -79,11 +88,15 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return await this.usersService.update(+id, updateUserDto);
+    return await this.usersService.updatePartially(+id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access-token')
+  @ApiResponse({
+    status: 200,
+    description: "{message: 'User deleted'}",
+  })
   @ApiUnauthorizedResponse({
     description: 'Unregistered or not owner of user :id.',
   })

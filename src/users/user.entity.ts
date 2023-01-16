@@ -34,7 +34,10 @@ export class User {
   @Column({ unique: true })
   cpf: string;
 
-  @OneToMany(() => Form, (form) => form.user, { onDelete: 'CASCADE' })
+  @OneToMany(() => Form, (form) => form.user, {
+    onDelete: 'CASCADE',
+    cascade: ['remove'],
+  })
   forms: Form[];
 
   @OneToMany(() => Answer, (answer) => answer.user)

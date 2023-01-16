@@ -25,7 +25,7 @@ import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
 @Controller()
 @ApiTags('answers')

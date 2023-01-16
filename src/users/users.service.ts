@@ -43,9 +43,16 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ cpf });
   }
 
-  async update(id: number, userData: CreateUserDto | UpdateUserDto) {
+  async updateFully(id: number, userData: CreateUserDto | UpdateUserDto) {
     const user = await this.usersRepository.findOneByOrFail({ id });
     this.usersRepository.merge(user, userData);
+    await this.usersRepository.save(user);
+    return { message: 'User updated' };
+  }
+
+  async updatePartially(id: number, userData: CreateUserDto | UpdateUserDto) {
+    const user = await this.usersRepository.findOneByOrFail({ id });
+    this.usersRepository.merge(user, { ...user, ...userData });
     await this.usersRepository.save(user);
     return { message: 'User updated' };
   }

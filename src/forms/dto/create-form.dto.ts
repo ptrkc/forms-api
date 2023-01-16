@@ -21,7 +21,7 @@ export class CreateFormDto {
   @IsNotEmpty()
   @IsDateString()
   @ApiProperty({
-    example: '20220-01-30',
+    example: '2022-01-01',
   })
   date: Date;
 
@@ -38,8 +38,8 @@ export class CreateFormDto {
   @Type(() => CreateQuestionDto)
   @ApiProperty({
     example: [
-      'Você recomendaria a empresa a alguém?',
-      'Você se sente seguro no ambiente de trabalho?',
+      { description: 'Você recomendaria a empresa a alguém?' },
+      { description: 'Você se sente seguro no ambiente de trabalho?' },
     ],
   })
   questions: CreateQuestionDto[];

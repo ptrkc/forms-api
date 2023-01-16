@@ -28,12 +28,11 @@ export class Form {
 
   @OneToMany(() => Question, (question) => question.form, {
     cascade: true,
-    onUpdate: 'CASCADE',
   })
   questions: Question[];
 
   @OneToMany(() => Answer, (answer) => answer.form, {
-    cascade: true,
+    onUpdate: 'CASCADE',
   })
   answers: Answer[];
 }
