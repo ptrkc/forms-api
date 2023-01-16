@@ -18,6 +18,7 @@ export class Question {
 
   @ManyToOne(() => Form, (form) => form.questions, {
     cascade: true,
+    onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   form: Form;

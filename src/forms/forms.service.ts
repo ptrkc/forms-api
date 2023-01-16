@@ -24,17 +24,24 @@ export class FormsService {
   }
 
   async findAll(skip: number, take: number) {
-    const forms = await this.formsRepository.find({
-      skip,
-      take,
-      order: { date: 'desc' },
-    });
+    const forms = await this.formsRepository
+      .createQueryBuilder('form')
+      .leftJoin('form.user', 'user')
+      .addSelect(['user.id', 'user.name'])
+      .skip(skip)
+      .take(take)
+      .orderBy('form.id', 'DESC')
+      .getMany();
+
     const totalCount = await this.formsRepository.count();
     return { forms, totalCount };
   }
 
   async findOneById(id: number) {
-    return await this.formsRepository.findOneBy({ id });
+    return await this.formsRepository.findOne({
+      where: { id },
+      relations: ['questions'],
+    });
   }
 
   async AuthFindOrThrow(user: UserJwt, id: number) {
@@ -68,7 +75,7 @@ export class FormsService {
   ) {
     const form = await this.AuthFindOrThrow(user, id);
     this.formsRepository.merge(form, updateFormDto);
-    await this.formsRepository.save(user);
+    await this.formsRepository.save(form);
     return { message: 'Form updated' };
   }
 

@@ -28,7 +28,6 @@ export class Form {
   @OneToMany(() => Question, (question) => question.form, {
     cascade: ['insert', 'update'],
     onUpdate: 'CASCADE',
-    nullable: true,
   })
   questions: Question[];
 }
