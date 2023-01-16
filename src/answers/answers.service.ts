@@ -12,23 +12,41 @@ export class AnswersService {
     private answersRepository: Repository<Answer>,
   ) {}
 
-  create(createAnswerDto: CreateAnswerDto) {
-    return 'This action adds a new answer';
+  async create(id: number, createAnswerDto: CreateAnswerDto) {
+    const answer = this.answersRepository.create({
+      ...createAnswerDto,
+      form: { id },
+    });
+    await this.answersRepository.save(answer);
+    return { message: 'Answer created' };
   }
 
-  findAll() {
-    return `This action returns all answers`;
+  async findAll(id: number, skip: number, take: number) {
+    const answers = await this.answersRepository.find({
+      skip,
+      take,
+      order: { id: 'desc' },
+      select: {
+        id: true,
+        description: true,
+      },
+      where: {
+        form: { id },
+      },
+    });
+    const totalCount = await this.answersRepository.count();
+    return { answers, totalCount };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} answer`;
+  async update(id: number, updateAnswerDto: UpdateAnswerDto) {
+    const answer = await this.answersRepository.findOneBy({ id });
+    this.answersRepository.merge(answer, updateAnswerDto);
+    await this.answersRepository.save(answer);
+    return { message: 'Answer updated' };
   }
 
-  update(id: number, updateAnswerDto: UpdateAnswerDto) {
-    return `This action updates a #${id} answer`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} answer`;
+  async remove(id: number) {
+    await this.answersRepository.delete({ id });
+    return { message: 'Answer deleted' };
   }
 }

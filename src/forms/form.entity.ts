@@ -1,3 +1,4 @@
+import { Answer } from 'src/answers/answer.entity';
 import { Question } from 'src/questions/question.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -22,12 +23,15 @@ export class Form {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, (user) => user.forms, { nullable: true })
-  user?: User;
+  @ManyToOne(() => User, (user) => user.forms)
+  user: User;
 
   @OneToMany(() => Question, (question) => question.form, {
     cascade: ['insert', 'update'],
     onUpdate: 'CASCADE',
   })
   questions: Question[];
+
+  @ManyToOne(() => Answer, (answer) => answer.form, { nullable: true })
+  answers?: Answer[];
 }
