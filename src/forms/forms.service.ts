@@ -24,7 +24,13 @@ export class FormsService {
   }
 
   async findAll(skip: number, take: number) {
-    return await this.formsRepository.find({ skip, take });
+    const forms = await this.formsRepository.find({
+      skip,
+      take,
+      order: { date: 'desc' },
+    });
+    const totalCount = await this.formsRepository.count();
+    return { forms, totalCount };
   }
 
   async findOneById(id: number) {
