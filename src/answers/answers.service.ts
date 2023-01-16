@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Answer } from './answer.entity';
-import { CreateAnswerDto } from './dto/create-answer.dto';
+import { AnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @Injectable()
@@ -12,13 +13,17 @@ export class AnswersService {
     private answersRepository: Repository<Answer>,
   ) {}
 
-  async create(id: number, createAnswerDto: CreateAnswerDto) {
-    const answer = this.answersRepository.create({
-      ...createAnswerDto,
-      form: { id },
-    });
-    await this.answersRepository.save(answer);
-    return { message: 'Answer created' };
+  async create(id: number, user: User, answers: AnswerDto[]) {
+    const items = answers.map((item) =>
+      this.answersRepository.create({
+        description: item.description,
+        question: { id: item.questionId },
+        user: { id: user.id },
+        form: { id },
+      }),
+    );
+    await this.answersRepository.save(items);
+    return { message: 'Answers created' };
   }
 
   async findAll(id: number, skip: number, take: number) {

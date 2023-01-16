@@ -32,6 +32,6 @@ export class Form {
   })
   questions: Question[];
 
-  @ManyToOne(() => Answer, (answer) => answer.form, { nullable: true })
-  answers?: Answer[];
+  @ManyToOne(() => Answer, (answer) => answer.form)
+  answers: Answer[];
 }

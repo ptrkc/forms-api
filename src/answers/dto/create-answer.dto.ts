@@ -1,12 +1,29 @@
-import { IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
-export class CreateAnswerDto {
+export class AnswerDto {
   @IsString()
   description: string;
 
   @IsNumber()
-  questionId: string;
+  questionId: number;
 
   @IsNumber()
-  userId: string;
+  userId?: number;
+
+  @IsNumber()
+  formId: number;
+}
+export class CreateAnswerDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => AnswerDto)
+  answers: AnswerDto[];
 }

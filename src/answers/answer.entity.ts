@@ -9,14 +9,17 @@ export class Answer {
   id: number;
 
   @Column()
-  description: string;
+  description?: string;
 
   @ManyToOne(() => Question, (question) => question.answers)
   question: Question;
+  questioId: number;
 
   @ManyToOne(() => User, (user) => user.answers)
   user: User;
+  userId: number;
 
   @ManyToOne(() => Form, (form) => form.answers)
   form: Form;
+  formId: number;
 }
