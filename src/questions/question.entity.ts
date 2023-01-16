@@ -16,13 +16,11 @@ export class Question {
   @Column()
   description: string;
 
-  @ManyToOne(() => Form, (form) => form.questions, {
-    cascade: true,
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Form, (form) => form.questions, { onDelete: 'CASCADE' })
   form: Form;
 
-  @OneToMany(() => Answer, (answer) => answer.question, {})
+  @OneToMany(() => Answer, (answer) => answer.question, {
+    cascade: ['remove'],
+  })
   answers: Answer[];
 }

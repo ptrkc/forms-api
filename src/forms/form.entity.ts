@@ -27,11 +27,13 @@ export class Form {
   user: User;
 
   @OneToMany(() => Question, (question) => question.form, {
-    cascade: ['insert', 'update'],
+    cascade: true,
     onUpdate: 'CASCADE',
   })
   questions: Question[];
 
-  @ManyToOne(() => Answer, (answer) => answer.form)
+  @OneToMany(() => Answer, (answer) => answer.form, {
+    cascade: true,
+  })
   answers: Answer[];
 }

@@ -13,13 +13,10 @@ export class Answer {
 
   @ManyToOne(() => Question, (question) => question.answers)
   question: Question;
-  questioId: number;
 
   @ManyToOne(() => User, (user) => user.answers)
   user: User;
-  userId: number;
 
-  @ManyToOne(() => Form, (form) => form.answers)
+  @ManyToOne(() => Form, (form) => form.answers, { onDelete: 'CASCADE' })
   form: Form;
-  formId: number;
 }
