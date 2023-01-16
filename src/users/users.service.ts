@@ -24,7 +24,19 @@ export class UsersService {
   }
 
   async findAll(skip: number, take: number) {
-    return await this.usersRepository.find({ skip, take });
+    const users = await this.usersRepository.find({
+      skip,
+      take,
+      order: { id: 'desc' },
+      select: {
+        id: true,
+        role: true,
+        name: true,
+        cpf: true,
+      },
+    });
+    const totalCount = await this.usersRepository.count();
+    return { users, totalCount };
   }
 
   async findByCpf(cpf: string) {
