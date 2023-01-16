@@ -12,6 +12,12 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AdminOnlyGuard } from 'src/auth/guards/admin-only.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
@@ -19,11 +25,15 @@ import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({ description: 'Unregistered user.' })
 @Controller()
+@ApiTags('answers')
 export class AnswersController {
   constructor(private readonly answersService: AnswersService) {}
-
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
+  @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
   @Get('questionario/:formId/respostas')
   async findAll(
     @Param('formId') id: string,

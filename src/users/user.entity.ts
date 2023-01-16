@@ -9,6 +9,7 @@ import {
   BeforeUpdate,
 } from 'typeorm';
 import { hash } from 'bcrypt';
+import { ApiProperty } from '@nestjs/swagger';
 
 enum Roles {
   user = 'user',
@@ -17,18 +18,19 @@ enum Roles {
 
 @Entity({ name: 'users' })
 export class User {
+  @ApiProperty()
   @PrimaryGeneratedColumn()
   id: number;
-
+  @ApiProperty()
   @Column({ type: 'enum', enum: Roles, default: Roles.user })
   role: Roles;
-
+  @ApiProperty()
   @Column()
   name: string;
 
   @Column()
   password: string;
-
+  @ApiProperty()
   @Column({ unique: true })
   cpf: string;
 

@@ -18,12 +18,31 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { AdminOnlyGuard } from 'src/auth/guards/admin-only.guard';
 import { OwnerGuard } from 'src/auth/guards/owner.guard';
+import {
+  ApiBearerAuth,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { User } from './user.entity';
 
 @Controller()
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({ description: 'Not admin user.' })
+  @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
+  @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
+  @ApiResponse({
+    type: User,
+    isArray: true,
+    status: 200,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @Get('usuarios')
   async findAll(
     @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
@@ -38,6 +57,10 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unregistered or not owner of user :id.',
+  })
   @Put('usuario/:id')
   async updateCompletely(
     @Param('id') id: string,
@@ -47,6 +70,10 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unregistered or not owner of user :id.',
+  })
   @Patch('usuario/:id')
   async updatePartially(
     @Param('id') id: string,
@@ -56,6 +83,10 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard, OwnerGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unregistered or not owner of user :id.',
+  })
   @Delete('usuario/:id')
   async remove(@Param('id') id: string) {
     return await this.usersService.remove(+id);
