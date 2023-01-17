@@ -51,6 +51,7 @@ export class UsersController {
     return await this.usersService.findAll(skip, take);
   }
 
+  @ApiResponse({ status: 200, description: "{ message: 'User created' }" })
   @ApiConflictResponse({ description: 'CPF already enrolled' })
   @Post('usuario')
   async create(@Body() createUserDto: CreateUserDto) {

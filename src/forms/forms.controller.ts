@@ -22,18 +22,32 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { GetFormsResponse } from './dto/get-forms-response.dto';
+import { GetFormResponse } from './dto/get-form-response.dto';
 
 @Controller()
 @ApiTags('forms')
 export class FormsController {
   constructor(private readonly formsService: FormsService) {}
 
+  @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
+  @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
+  @ApiResponse({ status: 200, type: GetFormsResponse })
+  @Get('questionarios')
+  async findAll(
+    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
+    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
+  ) {
+    return await this.formsService.findAll(skip, take);
+  }
+
   @Post('questionarios')
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ description: "{ message: 'Form created' }" })
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
   async create(
@@ -46,19 +60,10 @@ export class FormsController {
     });
   }
 
-  @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
-  @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
-  @Get('questionarios')
-  async findAll(
-    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
-    @Query('take', new DefaultValuePipe(10), ParseIntPipe) take: number,
-  ) {
-    return await this.formsService.findAll(skip, take);
-  }
-
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
+  @ApiResponse({ type: GetFormResponse, status: 200 })
   @Get('questionario/:id')
   async findOne(@Param('id') id: string) {
     return await this.formsService.findOneById(+id);
@@ -67,6 +72,7 @@ export class FormsController {
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
+  @ApiResponse({ description: "{ message: 'Form updated' }" })
   @Put('questionario/:id')
   async updateFully(
     @Param('id') id: string,
@@ -79,6 +85,7 @@ export class FormsController {
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
+  @ApiResponse({ description: "{ message: 'Form updated' }" })
   @Patch('questionario/:id')
   async updatePartially(
     @Param('id') id: string,
@@ -95,6 +102,7 @@ export class FormsController {
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
+  @ApiResponse({ status: 200, description: "{ message: 'Form deleted' }" })
   @Delete('questionario/:id')
   async remove(@Param('id') id: string, @Req() req: { user: UserJwt }) {
     return await this.formsService.remove(req.user, +id);

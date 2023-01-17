@@ -15,5 +15,5 @@ export class UpdateQuestionDto extends PartialType(CreateQuestionDto) {
   @ApiProperty({
     example: '2',
   })
-  id?: number;
+  id: number;
 }

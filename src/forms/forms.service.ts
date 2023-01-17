@@ -74,7 +74,7 @@ export class FormsService {
     updateFormDto: UpdateFormDto,
   ) {
     const form = await this.AuthFindOrThrow(user, id);
-    this.formsRepository.merge(form, updateFormDto);
+    this.formsRepository.merge(form, { ...form, ...updateFormDto });
     await this.formsRepository.save(form);
     return { message: 'Form updated' };
   }
