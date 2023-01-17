@@ -12,6 +12,6 @@ psql -c "CREATE DATABASE forms;"
 ```bash
 cp .env.example .env
 npm i
-migration:run
+npm run migration:run
 npm run start:dev
 ```
