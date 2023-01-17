@@ -14,15 +14,17 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminOnlyGuard } from 'src/auth/guards/admin-only.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
 import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
+import { AnswersResponse } from './dto/get-answers.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @ApiBearerAuth('access-token')
@@ -31,7 +33,9 @@ import { UpdateAnswerDto } from './dto/update-answer.dto';
 @ApiTags('answers')
 export class AnswersController {
   constructor(private readonly answersService: AnswersService) {}
-  @UseGuards(JwtAuthGuard, AdminOnlyGuard)
+
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ type: AnswersResponse, isArray: true, status: 200 })
   @ApiQuery({ name: 'skip', required: false, description: 'Default is 0' })
   @ApiQuery({ name: 'take', required: false, description: 'Default is 10' })
   @Get('questionario/:formId/respostas')
@@ -44,24 +48,42 @@ export class AnswersController {
   }
   @UseGuards(JwtAuthGuard)
   @Post('questionario/:formId/resposta')
-  create(
+  async create(
     @Param('formId') id: string,
     @Body() createAnswerDto: Omit<CreateAnswerDto, 'userId'>,
     @Req() req: { user: User },
   ) {
-    return this.answersService.create(+id, req.user, createAnswerDto.answers);
+    return await this.answersService.create(
+      +id,
+      req.user,
+      createAnswerDto.answers,
+    );
   }
   @UseGuards(JwtAuthGuard)
   @Put('/questionario/:formId/resposta/:answerId')
   update(
-    @Param('answerId') id: string,
+    @Param('formId') formId: string,
+    @Param('answerId') answerId: string,
     @Body() updateAnswerDto: UpdateAnswerDto,
+    @Req() req: { user: User },
   ) {
-    return this.answersService.update(+id, updateAnswerDto);
+    return this.answersService.update(
+      +formId,
+      +answerId,
+      req.user,
+      updateAnswerDto,
+    );
   }
+  @ApiResponse({ status: 200, description: "{ message: 'Answer deleted' }" })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiUnauthorizedResponse({ description: 'User is not owner nor admin' })
   @UseGuards(JwtAuthGuard)
   @Delete('/questionario/:formId/resposta/:answerId')
-  remove(@Param('answerId') id: string) {
-    return this.answersService.remove(+id);
+  async remove(
+    @Param('formId') formId: string,
+    @Param('answerId') answerId: string,
+    @Req() req: { user: User },
+  ) {
+    return await this.answersService.remove(+answerId, +formId, req.user);
   }
 }

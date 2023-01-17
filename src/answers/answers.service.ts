@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
@@ -39,19 +43,47 @@ export class AnswersService {
         form: { id },
       },
     });
-    const totalCount = await this.answersRepository.count();
+    const totalCount = await this.answersRepository.count({
+      where: {
+        form: { id },
+      },
+    });
     return { answers, totalCount };
   }
 
-  async update(id: number, updateAnswerDto: UpdateAnswerDto) {
-    const answer = await this.answersRepository.findOneBy({ id });
-    this.answersRepository.merge(answer, updateAnswerDto);
-    await this.answersRepository.save(answer);
+  async update(
+    formId: number,
+    answerId: number,
+    user: User,
+    updateAnswerDto: UpdateAnswerDto,
+  ) {
+    const answer = await this.answersRepository.findOne({
+      where: { id: answerId },
+      relations: ['form', 'user'],
+    });
+    if (!answer || answer.form.id !== formId) throw new NotFoundException();
+
+    if (user.id !== answer.user.id && user.role !== 'admin') {
+      throw new UnauthorizedException();
+    }
+
+    this.answersRepository.update(answerId, updateAnswerDto);
     return { message: 'Answer updated' };
   }
 
-  async remove(id: number) {
-    await this.answersRepository.delete({ id });
+  async remove(answerId: number, formId: number, user: User) {
+    const answer = await this.answersRepository.findOne({
+      where: { id: answerId },
+      relations: ['form', 'user'],
+    });
+    console.log(answer);
+    if (!answer || answer.form.id !== formId) throw new NotFoundException();
+
+    if (user.id !== answer.user.id && user.role !== 'admin') {
+      throw new UnauthorizedException();
+    }
+
+    await this.answersRepository.remove(answer);
     return { message: 'Answer deleted' };
   }
 }

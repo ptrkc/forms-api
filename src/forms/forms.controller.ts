@@ -66,7 +66,7 @@ export class FormsController {
   @ApiResponse({ type: GetFormResponse, status: 200 })
   @Get('questionario/:id')
   async findOne(@Param('id') id: string) {
-    return await this.formsService.findOneById(+id);
+    return await this.formsService.findOneByIdWithQuestions(+id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -76,7 +76,7 @@ export class FormsController {
   @Put('questionario/:id')
   async updateFully(
     @Param('id') id: string,
-    @Body() updateFormDto: CreateFormDto,
+    @Body() updateFormDto: UpdateFormDto,
     @Req() req: { user: UserJwt },
   ) {
     return await this.formsService.updateFully(req.user, +id, updateFormDto);

@@ -37,7 +37,7 @@ export class FormsService {
     return { forms, totalCount };
   }
 
-  async findOneById(id: number) {
+  async findOneByIdWithQuestions(id: number) {
     return await this.formsRepository.findOne({
       where: { id },
       relations: ['questions'],
@@ -45,24 +45,21 @@ export class FormsService {
   }
 
   async AuthFindOrThrow(user: UserJwt, id: number) {
-    let form: Form;
-    if (user.role !== 'admin') {
-      form = await this.formsRepository.findOne({
-        where: { id },
-        relations: ['user'],
-      });
-      if (!form) throw new NotFoundException();
+    const form = await this.formsRepository
+      .createQueryBuilder('form')
+      .leftJoinAndSelect('form.user', 'user')
+      .addSelect('user.id')
+      .where('form.id = :id', { id })
+      .getOne();
+    if (!form) throw new NotFoundException();
 
-      if (form.user?.id !== user.id) {
-        throw new UnauthorizedException();
-      } else {
-        return form;
-      }
+    if (user.id !== form.user.id && user.role !== 'admin') {
+      throw new UnauthorizedException();
     }
-    return await this.formsRepository.findOneBy({ id });
+    return form;
   }
 
-  async updateFully(user: UserJwt, id: number, updateFormDto: CreateFormDto) {
+  async updateFully(user: UserJwt, id: number, updateFormDto: UpdateFormDto) {
     const form = await this.AuthFindOrThrow(user, id);
     await this.formsRepository.update(form.id, updateFormDto);
     return { message: 'Form updated' };
@@ -74,6 +71,7 @@ export class FormsService {
     updateFormDto: UpdateFormDto,
   ) {
     const form = await this.AuthFindOrThrow(user, id);
+
     this.formsRepository.merge(form, { ...form, ...updateFormDto });
     await this.formsRepository.save(form);
     return { message: 'Form updated' };
