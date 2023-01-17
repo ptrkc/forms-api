@@ -11,7 +11,7 @@ import {
 import { hash } from 'bcrypt';
 import { ApiProperty } from '@nestjs/swagger';
 
-enum Roles {
+export enum UserRoles {
   user = 'user',
   admin = 'admin',
 }
@@ -22,8 +22,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
   @ApiProperty()
-  @Column({ type: 'enum', enum: Roles, default: Roles.user })
-  role: Roles;
+  @Column({ type: 'enum', enum: UserRoles, default: UserRoles.user })
+  role: UserRoles;
   @ApiProperty()
   @Column()
   name: string;

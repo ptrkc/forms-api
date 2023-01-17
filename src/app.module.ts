@@ -7,6 +7,7 @@ import { AnswersModule } from './answers/answers.module';
 import { typeOrmConfig } from './config/typeOrm.config';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     QuestionsModule,
     AnswersModule,
     AuthModule,
+    SeedModule,
   ],
 })
 export class AppModule {}
