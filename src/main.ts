@@ -8,6 +8,14 @@ import { SeedModule } from './seed/seed.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const configService = app.get(ConfigService);
+  const seedFlag = configService.get('SEED_FLAG');
+  if (seedFlag === 'TRUE') {
+    const seedModule = app.select(SeedModule);
+    await seedModule.get(SeedModule).seed();
+    return app.close();
+  }
+
   const config = new DocumentBuilder()
     .setTitle('forms-api')
     .setDescription('The forms API description')
@@ -28,12 +36,6 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
   app.enableCors();
-  const configService = app.get(ConfigService);
-  const seedFlag = configService.get('SEED_FLAG');
-  if (seedFlag === 'TRUE') {
-    const seedModule = app.select(SeedModule);
-    await seedModule.get(SeedModule).seed();
-  }
   await app.listen(3000);
 }
 bootstrap();

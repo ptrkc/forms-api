@@ -43,16 +43,28 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ cpf });
   }
 
-  async updateFully(id: number, userData: CreateUserDto | UpdateUserDto) {
+  async updateFully(id: number, newUserData: CreateUserDto) {
     const user = await this.usersRepository.findOneByOrFail({ id });
-    this.usersRepository.merge(user, userData);
+    if (newUserData.cpf !== user.cpf) {
+      const conflictingUser = await this.usersRepository.findOneBy({
+        cpf: newUserData.cpf,
+      });
+      if (conflictingUser) throw new ConflictException();
+    }
+    this.usersRepository.merge(user, newUserData);
     await this.usersRepository.save(user);
     return { message: 'User updated' };
   }
 
-  async updatePartially(id: number, userData: CreateUserDto | UpdateUserDto) {
+  async updatePartially(id: number, newUserData: UpdateUserDto) {
     const user = await this.usersRepository.findOneByOrFail({ id });
-    this.usersRepository.merge(user, { ...user, ...userData });
+    if (newUserData.cpf && newUserData.cpf !== user.cpf) {
+      const conflictingUser = await this.usersRepository.findOneBy({
+        cpf: newUserData.cpf,
+      });
+      if (conflictingUser) throw new ConflictException();
+    }
+    this.usersRepository.merge(user, { ...user, ...newUserData });
     await this.usersRepository.save(user);
     return { message: 'User updated' };
   }

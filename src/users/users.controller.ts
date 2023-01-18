@@ -64,6 +64,7 @@ export class UsersController {
     status: 200,
     description: "{message: 'User updated'}",
   })
+  @ApiConflictResponse({ description: 'CPF already used by another user.' })
   @ApiUnauthorizedResponse({
     description: 'Unregistered or not owner of user :id.',
   })
@@ -81,6 +82,7 @@ export class UsersController {
     status: 200,
     description: "{message: 'User updated'}",
   })
+  @ApiConflictResponse({ description: 'CPF already used by another user.' })
   @ApiUnauthorizedResponse({
     description: 'Unregistered or not owner of user :id.',
   })
