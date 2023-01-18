@@ -76,7 +76,6 @@ export class AnswersService {
       where: { id: answerId },
       relations: ['form', 'user'],
     });
-    console.log(answer);
     if (!answer || answer.form.id !== formId) throw new NotFoundException();
 
     if (user.id !== answer.user.id && user.role !== 'admin') {

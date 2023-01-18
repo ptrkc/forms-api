@@ -21,6 +21,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -101,6 +102,7 @@ export class FormsController {
 
   @UseGuards(JwtAuthGuard)
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
+  @ApiNotFoundResponse({ description: 'Form not found.' })
   @ApiBearerAuth('access-token')
   @ApiResponse({ status: 200, description: "{ message: 'Form deleted' }" })
   @Delete('questionario/:id')

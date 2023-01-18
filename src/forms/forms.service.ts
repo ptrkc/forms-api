@@ -78,14 +78,14 @@ export class FormsService {
   }
 
   async remove(user: UserJwt, id: number) {
-    if (user.role !== 'admin') {
-      const form = await this.formsRepository.findOne({
-        where: { id },
-        relations: ['user'],
-      });
-      if (form && form.user?.id !== user.id) {
-        throw new UnauthorizedException();
-      }
+    const form = await this.formsRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!form) throw new NotFoundException();
+
+    if (user.role !== 'admin' || form.user?.id !== user.id) {
+      throw new UnauthorizedException();
     }
 
     await this.formsRepository.delete({ id });
