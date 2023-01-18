@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { CreateFormDto } from './dto/create-form.dto';
-import { UpdateFormDto } from './dto/update-form.dto';
+import { PutFormDto } from './dto/put-form.dto';
 import { UserJwt } from 'src/auth/strategies/jwt.strategy';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import {
@@ -29,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { GetFormsResponse } from './dto/get-forms-response.dto';
 import { GetFormResponse } from './dto/get-form-response.dto';
+import { PatchFormDto } from './dto/patch-form.dto';
 
 @Controller()
 @ApiTags('forms')
@@ -77,7 +78,7 @@ export class FormsController {
   @Put('questionario/:id')
   async updateFully(
     @Param('id') id: string,
-    @Body() updateFormDto: UpdateFormDto,
+    @Body() updateFormDto: PutFormDto,
     @Req() req: { user: UserJwt },
   ) {
     return await this.formsService.updateFully(req.user, +id, updateFormDto);
@@ -90,7 +91,7 @@ export class FormsController {
   @Patch('questionario/:id')
   async updatePartially(
     @Param('id') id: string,
-    @Body() updateFormDto: UpdateFormDto,
+    @Body() updateFormDto: PatchFormDto,
     @Req() req: { user: UserJwt },
   ) {
     return await this.formsService.updatePartially(

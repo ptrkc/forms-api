@@ -8,7 +8,8 @@ import { UserJwt } from 'src/auth/strategies/jwt.strategy';
 import { Question } from 'src/questions/question.entity';
 import { In, Repository } from 'typeorm';
 import { CreateFormDto } from './dto/create-form.dto';
-import { UpdateFormDto } from './dto/update-form.dto';
+import { PatchFormDto } from './dto/patch-form.dto';
+import { PutFormDto } from './dto/put-form.dto';
 import { Form } from './form.entity';
 
 @Injectable()
@@ -60,28 +61,25 @@ export class FormsService {
     return form;
   }
 
-  async updateFully(user: UserJwt, id: number, updateFormDto: UpdateFormDto) {
+  async updateFully(user: UserJwt, id: number, updateFormDto: PutFormDto) {
     const form = await this.AuthFindOrThrow(user, id);
+    // TODO: DRY
     const currentQuestionsIds = form.questions.map((q) => q.id);
     const questionsIdsToUpdate = updateFormDto.questions.map((q) => q.id);
     const questionsIdToDelete = currentQuestionsIds.filter(
       (q) => !questionsIdsToUpdate.includes(q),
     );
-
     const newQuestions = updateFormDto.questions.filter(
       (q) => q.id === undefined,
     );
-
     const questionsToUpdate = [];
     updateFormDto.questions.forEach((q) => {
       if (currentQuestionsIds.includes(q.id)) questionsToUpdate.push(q);
     });
-
     updateFormDto.questions = [...newQuestions, ...questionsToUpdate];
-
     await this.questionRepository.delete({ id: In(questionsIdToDelete) });
-
     delete form.questions;
+
     this.formsRepository.merge(form, updateFormDto);
     await this.formsRepository.save(form);
 
@@ -91,10 +89,28 @@ export class FormsService {
   async updatePartially(
     user: UserJwt,
     id: number,
-    updateFormDto: UpdateFormDto,
+    updateFormDto: PatchFormDto,
   ) {
     const form = await this.AuthFindOrThrow(user, id);
 
+    if (updateFormDto.questions) {
+      // TODO: DRY
+      const currentQuestionsIds = form.questions.map((q) => q.id);
+      const questionsIdsToUpdate = updateFormDto.questions.map((q) => q.id);
+      const questionsIdToDelete = currentQuestionsIds.filter(
+        (q) => !questionsIdsToUpdate.includes(q),
+      );
+      const newQuestions = updateFormDto.questions.filter(
+        (q) => q.id === undefined,
+      );
+      const questionsToUpdate = [];
+      updateFormDto.questions.forEach((q) => {
+        if (currentQuestionsIds.includes(q.id)) questionsToUpdate.push(q);
+      });
+      updateFormDto.questions = [...newQuestions, ...questionsToUpdate];
+      await this.questionRepository.delete({ id: In(questionsIdToDelete) });
+      delete form.questions;
+    }
     this.formsRepository.merge(form, { ...form, ...updateFormDto });
     await this.formsRepository.save(form);
     return { message: 'Form updated' };
