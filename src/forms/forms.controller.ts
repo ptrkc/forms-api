@@ -48,7 +48,7 @@ export class FormsController {
 
   @Post('questionarios')
   @UseGuards(JwtAuthGuard)
-  @ApiCreatedResponse({ description: "{ message: 'Form created' }" })
+  @ApiCreatedResponse({ description: '{ id: :id }' })
   @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
   @ApiBearerAuth('access-token')
   async create(
