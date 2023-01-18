@@ -1,10 +1,11 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class GenerateTables1673966555072 implements MigrationInterface {
-    name = 'GenerateTables1673966555072'
+export class GenerateTables1674062327588 implements MigrationInterface {
+    name = 'GenerateTables1674062327588'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "questions" ("id" SERIAL NOT NULL, "description" character varying NOT NULL, "formId" integer, CONSTRAINT "PK_08a6d4b0f49ff300bf3a0ca60ac" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."users_role_enum" AS ENUM('user', 'admin')`);
         await queryRunner.query(`CREATE TABLE "users" ("id" SERIAL NOT NULL, "role" "public"."users_role_enum" NOT NULL DEFAULT 'user', "name" character varying NOT NULL, "password" character varying NOT NULL, "cpf" character varying NOT NULL, CONSTRAINT "UQ_230b925048540454c8b4c481e1c" UNIQUE ("cpf"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "forms" ("id" SERIAL NOT NULL, "date" TIMESTAMP NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "userId" integer, CONSTRAINT "PK_ba062fd30b06814a60756f233da" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "answers" ("id" SERIAL NOT NULL, "description" character varying NOT NULL, "questionId" integer, "userId" integer, "formId" integer, CONSTRAINT "PK_9c32cec6c71e06da0254f2226c6" PRIMARY KEY ("id"))`);
@@ -24,6 +25,7 @@ export class GenerateTables1673966555072 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "answers"`);
         await queryRunner.query(`DROP TABLE "forms"`);
         await queryRunner.query(`DROP TABLE "users"`);
+        await queryRunner.query(`DROP TYPE "public"."users_role_enum"`);
         await queryRunner.query(`DROP TABLE "questions"`);
     }
 
