@@ -23,9 +23,8 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/users/user.entity';
 import { AnswersService } from './answers.service';
-import { CreateAnswerDto } from './dto/create-answer.dto';
+import { AnswerDto, CreateAnswerDto } from './dto/create-answer.dto';
 import { AnswersResponse } from './dto/get-answers.dto';
-import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @ApiBearerAuth('access-token')
 @ApiUnauthorizedResponse({ description: 'Unregistered user.' })
@@ -47,10 +46,12 @@ export class AnswersController {
     return await this.answersService.findAll(+id, skip, take);
   }
   @UseGuards(JwtAuthGuard)
+  @ApiNotFoundResponse({ description: 'Form not found' })
+  @ApiResponse({ description: "{ message: 'Answer created'}" })
   @Post('questionario/:formId/resposta')
   async create(
     @Param('formId') id: string,
-    @Body() createAnswerDto: Omit<CreateAnswerDto, 'userId'>,
+    @Body() createAnswerDto: CreateAnswerDto,
     @Req() req: { user: User },
   ) {
     return await this.answersService.create(
@@ -60,11 +61,16 @@ export class AnswersController {
     );
   }
   @UseGuards(JwtAuthGuard)
+  @ApiNotFoundResponse({
+    description: "Combination of formId, answerId and questionId doesn't exist",
+  })
+  @ApiResponse({ description: "{ message: 'Answer updated'}" })
+  @ApiUnauthorizedResponse({ description: 'User does not own the answer' })
   @Put('/questionario/:formId/resposta/:answerId')
   update(
     @Param('formId') formId: string,
     @Param('answerId') answerId: string,
-    @Body() updateAnswerDto: UpdateAnswerDto,
+    @Body() updateAnswerDto: AnswerDto,
     @Req() req: { user: User },
   ) {
     return this.answersService.update(

@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsNumber,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class AnswerDto {
   @IsString()
@@ -20,24 +13,16 @@ export class AnswerDto {
     example: 4,
   })
   questionId: number;
-
-  @IsNumber()
-  @ApiProperty({
-    example: 2,
-  })
-  userId?: number;
-
-  @IsNumber()
-  @ApiProperty({
-    example: 3,
-  })
-  formId: number;
 }
 export class CreateAnswerDto {
-  @IsArray()
   @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => AnswerDto)
-  @ApiProperty()
+  @ApiProperty({
+    isArray: true,
+    type: AnswerDto,
+    example: [
+      { questionId: 2, description: 'Sim, eu gosto de chocolate' },
+      { questionId: 3, description: 'Não, não gosto de refrigerante' },
+    ],
+  })
   answers: AnswerDto[];
 }

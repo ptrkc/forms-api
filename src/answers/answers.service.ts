@@ -4,20 +4,25 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Form } from 'src/forms/form.entity';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { Answer } from './answer.entity';
 import { AnswerDto } from './dto/create-answer.dto';
-import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @Injectable()
 export class AnswersService {
   constructor(
     @InjectRepository(Answer)
     private answersRepository: Repository<Answer>,
+    @InjectRepository(Form)
+    private formsRepository: Repository<Form>,
   ) {}
 
   async create(id: number, user: User, answers: AnswerDto[]) {
+    const form = await this.formsRepository.findOneBy({ id });
+    if (!form) throw new NotFoundException();
+
     const items = answers.map((item) =>
       this.answersRepository.create({
         description: item.description,
@@ -55,19 +60,24 @@ export class AnswersService {
     formId: number,
     answerId: number,
     user: User,
-    updateAnswerDto: UpdateAnswerDto,
+    updateAnswerDto: AnswerDto,
   ) {
     const answer = await this.answersRepository.findOne({
       where: { id: answerId },
-      relations: ['form', 'user'],
+      relations: ['form', 'user', 'question'],
     });
-    if (!answer || answer.form.id !== formId) throw new NotFoundException();
-
+    if (
+      !answer ||
+      answer.form.id !== formId ||
+      answer.question.id !== updateAnswerDto.questionId
+    )
+      throw new NotFoundException();
     if (user.id !== answer.user.id && user.role !== 'admin') {
       throw new UnauthorizedException();
     }
 
-    this.answersRepository.update(answerId, updateAnswerDto);
+    this.answersRepository.merge(answer, updateAnswerDto);
+    await this.answersRepository.save(answer);
     return { message: 'Answer updated' };
   }
 
