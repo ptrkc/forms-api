@@ -123,7 +123,7 @@ export class FormsService {
     });
     if (!form) throw new NotFoundException();
 
-    if (user.role !== 'admin' || form.user?.id !== user.id) {
+    if (user.id !== form.user.id && user.role !== 'admin') {
       throw new UnauthorizedException();
     }
 
