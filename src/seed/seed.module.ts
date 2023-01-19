@@ -26,7 +26,7 @@ export class SeedModule {
     try {
       console.log('\nSeeding the database...');
       await this.dataSource.query(`
-    TRUNCATE TABLE "answers", "questions", "forms", "users" RESTART IDENTITY
+    TRUNCATE TABLE "answers", "questions", "forms", "tokens", "users"  RESTART IDENTITY
     `);
 
       const user1 = new User();
