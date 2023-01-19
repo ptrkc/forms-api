@@ -23,7 +23,7 @@ export class Form {
   @Column()
   description: string;
 
-  @ManyToOne(() => User, (user) => user.forms)
+  @ManyToOne(() => User, (user) => user.forms, { onDelete: 'CASCADE' })
   user: User;
 
   @OneToMany(() => Question, (question) => question.form, {

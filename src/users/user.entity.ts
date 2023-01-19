@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { hash } from 'bcrypt';
 import { ApiProperty } from '@nestjs/swagger';
+import { Token } from 'src/tokens/token.entity';
 
 export enum UserRoles {
   user = 'user',
@@ -42,6 +43,9 @@ export class User {
 
   @OneToMany(() => Answer, (answer) => answer.user)
   answers: Answer[];
+
+  @OneToMany(() => Token, (token) => token.user)
+  tokens: Token[];
 
   @BeforeInsert()
   @BeforeUpdate()
